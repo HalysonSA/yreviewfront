@@ -1,6 +1,7 @@
 import { useForm } from "react-hook-form";
 import { BsFillEmojiFrownFill, BsFillEmojiSmileFill } from "react-icons/bs";
 import axios from "./api/axios";
+import { useState } from "react";
 
 type TFormData = {
   title: string;
@@ -18,8 +19,11 @@ export default function Home() {
     formState: { errors },
   } = useForm<TFormData>();
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const onSubmit = handleSubmit(async (data) => {
     const formData = new FormData();
+    setIsLoading(true);
 
     const review = await axios.post("/review", {
       title: data.title,
@@ -46,15 +50,23 @@ export default function Home() {
           },
         }
       );
+
       return response.data;
     });
-
-    console.log(await Promise.all(a));
+    await Promise.all(a).then((values) => {
+      console.log(values);
+      setIsLoading(false);
+    });
     reset();
   });
 
   return (
     <div className='w-screen min-h-screen flex flex-col justify-center items-center bg-[#465076] '>
+      <div className='absolute top-5 right-5'>
+        <button className='uppercase bg-gray-500 text-white rounded-[10px] px-10 py-4'>
+          <a href='/reviews'>Ver reviews</a>
+        </button>
+      </div>
       <div className='min-w-[600px] p-4 bg-white rounded-[10px] min-h-[700px] '>
         <form
           id='review-form'
@@ -104,7 +116,7 @@ export default function Home() {
             <button
               type='submit'
               className='uppercase bg-green-700 text-white rounded-[10px] px-10 py-4'>
-              salvar
+              {isLoading ? "Carregando..." : "Enviar"}
             </button>
           </div>
         </form>
